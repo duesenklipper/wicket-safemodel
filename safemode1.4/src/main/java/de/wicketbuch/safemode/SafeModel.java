@@ -56,8 +56,11 @@ public final class SafeModel {
 						"SafeModel only supports getters");
 			}
 			currentTarget.set(callResult);
+			if (returnType.isPrimitive()) {
+				return callResult;
+			}
 			if (Modifier.isFinal(returnType.getModifiers())) {
-				return null;
+				return callResult;
 			} else if (Object.class.equals(returnType)) {
 				return ClassImposteriser.INSTANCE.imposterise(INSTANCE,
 						PropertyFinder.class);
@@ -70,7 +73,10 @@ public final class SafeModel {
 
 	public static <T> IModel<T> model(final T metaTarget) {
 		final Object target = root.get();
+		root.remove();
 		final StringBuilder pathBuilder = path.get();
+		path.remove();
+		currentTarget.remove();
 		if (target == null) {
 			throw new IllegalArgumentException(
 					"target not set - did you forget to use from()?");

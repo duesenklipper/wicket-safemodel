@@ -8,7 +8,9 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.util.tester.WicketTester;
@@ -33,6 +35,15 @@ public class SafeModelTest {
 	public static class Top {
 		private Middle mid;
 		private List<Middle> mids = new ArrayList<Middle>();
+		private Map<String, Bottom> bottomMap = new HashMap<String, Bottom>();
+
+		public Map<String, Bottom> getBottomMap() {
+			return bottomMap;
+		}
+
+		public void setBottomMap(final Map<String, Bottom> bottomMap) {
+			this.bottomMap = bottomMap;
+		}
 
 		public Middle getMid() {
 			return mid;
@@ -90,6 +101,8 @@ public class SafeModelTest {
 		mid.setString("testString");
 		final IModel<String> model = model(from(mid).getString());
 		assertEquals("testString", model.getObject());
+		model.setObject("newString");
+		assertEquals("newString", mid.getString());
 	}
 
 	@Test
@@ -155,5 +168,34 @@ public class SafeModelTest {
 		model.setObject(bot);
 		assertSame(bot, model.getObject());
 		assertSame(bot, top.getMids().get(0).getBot());
+	}
+
+	@Test
+	public void mapAsLeaf() throws Exception {
+		final Top top = new Top();
+		final Bottom bot1 = new Bottom();
+		top.getBottomMap().put("bot1", bot1);
+		final Bottom bot2 = new Bottom();
+		top.getBottomMap().put("bot2", bot2);
+		final IModel<Bottom> model = model(from(top).getBottomMap().get("bot1"));
+		assertEquals(bot1, model.getObject());
+		model.setObject(bot2);
+		assertEquals(bot2, top.getBottomMap().get("bot1")); // should point to
+															// bot2 now
+	}
+
+	@Test
+	public void mapInPath() throws Exception {
+		final Top top = new Top();
+		final Bottom bot1 = new Bottom();
+		top.getBottomMap().put("bot1", bot1);
+		bot1.setValue(42);
+		final Bottom bot2 = new Bottom();
+		top.getBottomMap().put("bot2", bot2);
+		final IModel<Integer> model = model(from(top).getBottomMap()
+				.get("bot1").getValue());
+		assertEquals(Integer.valueOf(42), model.getObject());
+		model.setObject(43);
+		assertEquals(43, bot1.getValue());
 	}
 }
