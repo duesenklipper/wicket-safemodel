@@ -2,6 +2,9 @@ package de.duesenklipper.safemode;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.util.List;
 
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.PropertyModel;
@@ -43,31 +46,59 @@ public final class SafeModel {
 
         public Object invoke(Invocation invocation) throws Throwable {
             final Method method = invocation.getInvokedMethod();
-            String methodName = method.getName();
+            final String methodName = method.getName();
+            final String fullPropertyPath;
+            Class<?> returnType = null;
+            final PropertyFinderImpl next;
             if (methodName.equals("__propertyPath")) {
                 return __propertyPath();
             } else if (methodName.equals("__root")) {
                 return __root();
+            } else if (methodName.equals("get")) {
+                if (List.class.isAssignableFrom(method.getDeclaringClass())) {
+                    fullPropertyPath = new StringBuilder(__propertyPath()).append("[")
+                            .append(invocation.getParameter(0)).append("]").toString();
+                    if (current != null) {
+                        ParameterizedType genericSuperclass = (ParameterizedType) current.getClass().getGenericSuperclass();
+                        Type type = genericSuperclass.getActualTypeArguments()[0];
+                        returnType = type.
+                    }
+                } else {
+                    throw new UnsupportedOperationException();
+                }
             } else if (methodName.startsWith("get")) {
                 String propertyName = new StringBuilder()
                         .append(Character.toLowerCase(methodName.charAt(3)))
                         .append(methodName.substring(4)).toString();
-                final String fullPropertyPath = __propertyPath() + "." + propertyName;
-                Class<?> returnType = method.getReturnType();
-                final PropertyFinderImpl next = new PropertyFinderImpl(root,
-                        method.invoke(current), fullPropertyPath);
-                if (Modifier.isFinal(returnType.getModifiers())) {
-                    fallback.set(next);
-                    return method.invoke(current);
-                } else {
-                    return ClassImposteriser.INSTANCE.imposterise(next, returnType,
-                            PropertyFinder.class);
+                final StringBuilder fullPropertyPathBuilder = new StringBuilder(__propertyPath());
+                if (fullPropertyPathBuilder.length() > 0) {
+                    fullPropertyPathBuilder.append(".");
                 }
+                fullPropertyPathBuilder.append(propertyName);
+                fullPropertyPath = fullPropertyPathBuilder.toString();
             } else {
                 throw new UnsupportedOperationException("SafeModel only supports getters");
             }
+            final Object actualResult;
+            if (current != null) {
+                actualResult = method.invoke(current, invocation.getParametersAsArray());
+            } else {
+                actualResult = null;
+            }
+            if ((actualResult != null) && Object.class.equals(method.getReturnType())) {
+                
+            }
+            next = new PropertyFinderImpl(root, actualResult, fullPropertyPath);
+            fallback.set(next);
+            if (Modifier.isFinal(returnType.getModifiers())) {
+                return actualResult;
+            } else if (Object.class.equals(returnType)) {
+                return ClassImposteriser.INSTANCE.imposterise(next, PropertyFinder.class);
+            } else {
+                return ClassImposteriser.INSTANCE.imposterise(next, returnType,
+                        PropertyFinder.class);
+            }
         }
-
     }
 
     public static <T> IModel<T> model(T metaTarget) {
