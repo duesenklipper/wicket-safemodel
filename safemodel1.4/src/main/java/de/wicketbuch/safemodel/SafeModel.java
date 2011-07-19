@@ -1,4 +1,4 @@
-package de.wicketbuch.safemode;
+package de.wicketbuch.safemodel;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;

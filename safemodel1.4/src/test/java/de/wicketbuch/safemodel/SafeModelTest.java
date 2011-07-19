@@ -1,6 +1,6 @@
-package de.wicketbuch.safemode;
+package de.wicketbuch.safemodel;
 
-import static de.wicketbuch.safemode.SafeModel.*;
+import static de.wicketbuch.safemodel.SafeModel.*;
 import static org.junit.Assert.*;
 
 import java.util.ArrayList;
