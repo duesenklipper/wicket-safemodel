@@ -2,7 +2,7 @@ wicket-safemodel
 ================
 A typesafe and refactoring-safe way to build Wicket `PropertyModel`s.
 
-**This is still under development, use at your own risk.**
+**This is working code, but only locally tested. Use at your own risk.**
 
 Why do I need this?
 -------------------
