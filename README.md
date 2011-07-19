@@ -72,7 +72,7 @@ How do I use it?
 
         import static de.wicketbuch.safemodel.SafeModel.*;
         
-*   Then use it as shown above - use `from(`_`my-root-object`_`)` to start and walk through
+*   Then use it as shown above - use `from(my-root-object)` to start and walk through
     your getters to the property you need. Wrap the whole thing in `model(...)` and you get
     a properly typechecked `IModel` instance.
 
