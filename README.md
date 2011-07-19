@@ -50,7 +50,7 @@ in your IDE build settings. This can be awkward, especially for third-party deve
 If you feel comfortable with configuring annotation processors, use metagen, since it will
 give you more than a reflection-based technique ever can.
 
-If you don't want to fiddle with your build, yet still want more safety for the almost
+If you don't want to fiddle with your build, yet still want more safety for almost
 all use cases, read on.
 
 Introducing SafeModel
