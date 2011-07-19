@@ -2,6 +2,8 @@ wicket-safemodel
 ================
 A typesafe and refactoring-safe way to build Wicket `PropertyModel`s.
 
+**This is still under development, use at your own risk.**
+
 Why do I need this?
 -------------------
 There are (vastly simplified for the sake of the argument) two ways to build models
@@ -88,6 +90,11 @@ Enjoy!
 Carl-Eric
 
 ----
+
+### Can I use this? What's the license? ###
+It's only locally-tested code, so take it with a grain of salt for now.
+
+The license is Apache 2.0, so you can do almost anything you like.
 
 ### How does it work? ###
 Under the hood, the `from` method uses jMock's `ClassImposteriser` to create a proxy around the
