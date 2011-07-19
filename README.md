@@ -2,7 +2,7 @@ wicket-safemodel
 ================
 A typesafe and refactoring-safe way to build Wicket `PropertyModel`s.
 
-**This is working code, but only locally tested. Use at your own risk.**
+**This is working code but only locally tested. Use at your own risk.**
 
 Why do I need this?
 -------------------
@@ -37,12 +37,12 @@ Or is there?
 What do we want instead?
 ------------------------
 What we really want are functional models like in the Scala extensions for Wicket.
-Unfortunately, most of us are stuck in Java world, where proper functions are still
-considered futuristic like flying cars and World Peace.
+Unfortunately, most of us are stuck in Java world where proper functions are still
+considered science fiction like flying cars and World Peace.
 
 We still want something concise, typesafe, refactoring-safe and (mostly) compilesafe.
 This can be achieved with something like [metagen](https://github.com/42Lines/metagen).
-Unfortunately, this requires an additional build step, since it uses bytecode instrumentation.
+Unfortunately, this requires an additional build step since it uses bytecode instrumentation.
 On the plus side, it gives you good compile-safety at almost no runtime cost. On the downside,
 you have to get it working in your main (probably Maven) build, and most likely separately
 in your IDE build settings. This can be awkward, especially for third-party developers.
