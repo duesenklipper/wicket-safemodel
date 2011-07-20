@@ -128,5 +128,20 @@
       <email>cmenzel@wicketbuch.de</email>
     </developer>
   </developers>
+  <distributionManagement>
+    <repository>
+      <id>repo</id>
+      <url>https://duesenklipper.github.com/maven/releases</url>
+    </repository>
+    <snapshotRepository>
+      <id>snapshot-repo</id>
+      <url>https://duesenklipper.github.com/maven/releases</url>
+    </snapshotRepository>
+  </distributionManagement>
+  <scm>
+    <connection>scm:git:git@github.com:duesenklipper/wicket-safemodel.git</connection>
+    <url>scm:git:git@github.com:duesenklipper/wicket-safemodel.git</url>
+    <developerConnection>scm:git:git@github.com:duesenklipper/wicket-safemodel.git</developerConnection>
+  </scm>
 </project>
 
