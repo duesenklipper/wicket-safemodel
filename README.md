@@ -2,7 +2,6 @@ wicket-safemodel
 ================
 A typesafe and refactoring-safe way to build Wicket `PropertyModel`s.
 
-**This is working code but only locally tested. Use at your own risk.**
 
 Why do I need this?
 -------------------
@@ -65,10 +64,28 @@ no string literal either, yet everything is fully typesafe. Cool, huh?
 
 How do I use it?
 ----------------
-*   Clone and build the appropriate project:
-    *   safemodel1.4 uses Wicket 1.4.17
-    *   safemodel1.5 will use Wicket 1.5.x. This "port" is not available yet, stay tuned.
-    A pre-built jar and maven repo will be available soon.
+*   Add my maven repo to your pom.xml:
+
+        <repositories>
+          <repository>
+            <id>duesenklipper</id>
+            <url>http://duesenklipper.github.com/maven/releases</url>
+            <snapshots>
+              <enabled>false</enabled>
+            </snapshots>
+            <releases>
+              <enabled>true</enabled>
+            </releases>
+          </repository>
+        </repositories>
+        
+*   Add a dependency on safemodel1.4 (if you use wicket1.4.17 - wicket1.5 support coming soon)
+
+        <dependency>
+          <groupId>de.wicketbuch.safemodel</groupId>
+          <artifactId>safemodel1.4</artifactId>
+          <version>1.1</version>
+        </dependency>
     
 *   Add a static import to your class to get the `from` and `model` methods into your scope:
 
