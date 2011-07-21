@@ -2,9 +2,9 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>de.wicketbuch.safemodel</groupId>
-  <artifactId>safemodel1.4</artifactId>
+  <artifactId>safemodel1.5</artifactId>
   <packaging>jar</packaging>
-  <version>1.2-SNAPSHOT</version>
+  <version>1.1-SNAPSHOT</version>
   <name>SafeModel</name>
   <description />
   <licenses>
@@ -15,7 +15,7 @@
     </license>
   </licenses>
   <properties>
-    <wicket.version>1.4.17</wicket.version>
+    <wicket.version>1.5-RC5.1</wicket.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <slf4j.version>1.5.8</slf4j.version>
   </properties>
@@ -23,7 +23,7 @@
     <!--  WICKET DEPENDENCIES -->
     <dependency>
       <groupId>org.apache.wicket</groupId>
-      <artifactId>wicket</artifactId>
+      <artifactId>wicket-core</artifactId>
       <version>${wicket.version}</version>
     </dependency>
     <dependency>
