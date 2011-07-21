@@ -79,14 +79,22 @@ How do I use it?
           </repository>
         </repositories>
         
-*   Add a dependency on safemodel1.4 (if you use wicket1.4.17 - wicket1.5 support coming soon)
+*   Add a dependency on safemodel1.4 if you use Wicket 1.4.17...
 
         <dependency>
           <groupId>de.wicketbuch.safemodel</groupId>
           <artifactId>safemodel1.4</artifactId>
           <version>1.1</version>
         </dependency>
-    
+        
+    ...or on safemodel1.5 if you use Wicket 1.5-RC5.1:
+
+        <dependency>
+          <groupId>de.wicketbuch.safemodel</groupId>
+          <artifactId>safemodel1.5</artifactId>
+          <version>1.1</version>
+        </dependency>
+
 *   Add a static import to your class to get the `from` and `model` methods into your scope:
 
         import static de.wicketbuch.safemodel.SafeModel.*;
