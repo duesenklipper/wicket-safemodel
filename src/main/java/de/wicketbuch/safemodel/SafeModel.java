@@ -41,7 +41,11 @@ public final class SafeModel {
 		// prevent instantiation
 	}
 
-	public static interface PropertyFinder {
+	private static interface Proxied {
+		// marker
+	}
+
+	public static interface PropertyFinder extends Proxied {
 		// marker
 	}
 
@@ -69,7 +73,7 @@ public final class SafeModel {
 				if (maybeModel == null) {
 					current = null;
 				} else if (maybeModel instanceof IModel) {
-					current = ((IModel) maybeModel).getObject();
+					current = ((IModel<?>) maybeModel).getObject();
 				} else {
 					current = maybeModel;
 				}
@@ -131,6 +135,36 @@ public final class SafeModel {
 		}
 	}
 
+	private static interface TypeAware<T> {
+		Class<T> __type();
+	}
+
+	private abstract static class TypeAwareLDM<T> extends
+			LoadableDetachableModel<T> implements TypeAware<T> {
+		private final Class<T> type;
+
+		private TypeAwareLDM(final Class<T> type) {
+			this.type = unproxy(type);
+		}
+
+		public Class<T> __type() {
+			return type;
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	private static <T> Class<T> unproxy(final Class<T> type) {
+		if (type == null) {
+			return null;
+		}
+		Class<T> result = type;
+		while (Proxied.class.isAssignableFrom(result)) {
+			result = (Class<T>) result.getSuperclass();
+		}
+		return result;
+	}
+
+	@SuppressWarnings("unchecked")
 	private static <T> IModel<T> serviceModel(final T metaTarget) {
 		final Object target = root.get();
 		final Method method = serviceMethod.get();
@@ -144,8 +178,9 @@ public final class SafeModel {
 			throw new IllegalArgumentException(
 					"method not set - did you forget to use fromService()?");
 		}
-		return new LoadableDetachableModel<T>() {
-			@SuppressWarnings("unchecked")
+		final Class<T> modelObjectType = (Class<T>) (metaTarget != null ? metaTarget
+				.getClass() : null);
+		return new TypeAwareLDM<T>(modelObjectType) {
 			@Override
 			protected T load() {
 				try {
@@ -165,6 +200,7 @@ public final class SafeModel {
 		};
 	}
 
+	@SuppressWarnings("unchecked")
 	private static <T> IModel<T> propertyModel(final T metaTarget) {
 		final Object target = root.get();
 		final StringBuilder pathBuilder = path.get();
@@ -177,7 +213,25 @@ public final class SafeModel {
 			throw new IllegalArgumentException(
 					"path not set - did you forget to use from()?");
 		}
-		return new PropertyModel<T>(target, pathBuilder.toString());
+		final Class<T> modelObjectType = (Class<T>) (metaTarget != null ? metaTarget
+				.getClass() : null);
+		return new TypeAwarePropModel<T>(modelObjectType, target,
+				pathBuilder.toString());
+	}
+
+	private static class TypeAwarePropModel<T> extends PropertyModel<T>
+			implements TypeAware<T> {
+		private final Class<T> type;
+
+		private TypeAwarePropModel(final Class<T> type, final Object target,
+				final String expression) {
+			super(target, expression);
+			this.type = unproxy(type);
+		}
+
+		public Class<T> __type() {
+			return type;
+		}
 	}
 
 	private static void clear() {
@@ -226,35 +280,44 @@ public final class SafeModel {
 		root.set(target);
 		currentTarget.set(target);
 		mode.set(Mode.PROPERTY);
-		final Class classToImposterize;
+		final Class<U> classToImposterize;
 		{
-			final Method getObject;
-			try {
-				getObject = target.getClass().getMethod("getObject");
-			} catch (final NoSuchMethodException e) {
-				throw new Error();
-			}
-			final Type type = GenericTypeReflector.getExactReturnType(
-					getObject, target.getClass());
-			if (type instanceof Class) {
-				classToImposterize = (Class<U>) type;
-			} else if (type instanceof ParameterizedType) {
-				classToImposterize = (Class) ((ParameterizedType) type)
-						.getRawType();
+			if (target instanceof TypeAware) {
+				final TypeAware<U> ta = (TypeAware<U>) target;
+				if (ta.__type() != null) {
+					classToImposterize = ta.__type();
+				} else {
+					classToImposterize = reflectModelObjectType(target);
+				}
 			} else {
-				throw new UnsupportedOperationException(
-						"don't know how to find the type");
+				classToImposterize = reflectModelObjectType(target);
 			}
 		}
-		return (U) ClassImposteriser.INSTANCE.imposterise(
+		return ClassImposteriser.INSTANCE.imposterise(
 				PropertyFinderImpl.INSTANCE, classToImposterize,
 				PropertyFinder.class);
 	}
 
-	// private static <T> Class<T> findClassToImposterize(Class<IModel<T>>
-	// target) {
-	// Class<IModel<T>> model
-	// }
+	@SuppressWarnings("unchecked")
+	private static <U> Class<U> reflectModelObjectType(final IModel<U> target)
+			throws Error {
+		final Method getObject;
+		try {
+			getObject = target.getClass().getMethod("getObject");
+		} catch (final NoSuchMethodException e) {
+			throw new Error();
+		}
+		final Type type = GenericTypeReflector.getExactReturnType(getObject,
+				target.getClass());
+		if (type instanceof Class) {
+			return (Class<U>) type;
+		} else if (type instanceof ParameterizedType) {
+			return (Class<U>) ((ParameterizedType) type).getRawType();
+		} else {
+			throw new UnsupportedOperationException(
+					"don't know how to find the type");
+		}
+	}
 
 	@SuppressWarnings("unchecked")
 	public static <U> U fromService(final U target) {
@@ -266,7 +329,7 @@ public final class SafeModel {
 				ServiceFinder.class);
 	}
 
-	public static interface ServiceFinder {
+	public static interface ServiceFinder extends Proxied {
 		// marker
 	}
 
@@ -301,10 +364,10 @@ public final class SafeModel {
 				return callResult;
 			} else if (Object.class.equals(returnType)) {
 				return ClassImposteriser.INSTANCE.imposterise(BLOCKER,
-						Object.class);
+						Object.class, Proxied.class);
 			} else {
 				return ClassImposteriser.INSTANCE.imposterise(BLOCKER,
-						returnType);
+						returnType, Proxied.class);
 			}
 		}
 	}

@@ -37,6 +37,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.util.tester.WicketTester;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class SafeModelTest {
@@ -230,6 +231,11 @@ public class SafeModelTest {
 
 	private boolean calledLoadMid = false;
 	final Middle mid = new Middle();
+	{
+		final Bottom bot = new Bottom();
+		bot.setValue(42);
+		mid.setBot(bot);
+	}
 
 	public class MidServiceImpl implements MidService {
 
@@ -271,6 +277,7 @@ public class SafeModelTest {
 	}
 
 	@Test
+	@Ignore("does not work due to bug in PropertyModel in wicket1.4.17, waiting for fix")
 	public void listModelAsTarget() throws Exception {
 		final Top top = new Top();
 		final Middle mid = new Middle();
@@ -286,5 +293,13 @@ public class SafeModelTest {
 		};
 		final IModel<Middle> model = model(from(rootModel).get(0).getMid());
 		assertSame(mid, model.getObject());
+	}
+
+	@Test
+	public void nestedServiceModel() throws Exception {
+		final MidService service = new MidServiceImpl();
+		final IModel<Integer> model = model(from(
+				model(fromService(service).loadMid(42))).getBot().getValue());
+		assertEquals(Integer.valueOf(42), model.getObject());
 	}
 }

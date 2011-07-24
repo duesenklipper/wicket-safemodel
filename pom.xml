@@ -92,6 +92,8 @@
           <header>src/etc/license-header.txt</header>
           <excludes>
             <exclude>src/test/java/log4j.properties</exclude>
+            <exclude>README.md</exclude>
+            <exclude>.gitignore</exclude>
           </excludes>
           <useDefaultExcludes>true</useDefaultExcludes>
           <strictCheck>true</strictCheck>
