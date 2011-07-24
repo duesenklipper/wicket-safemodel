@@ -6,7 +6,7 @@
   <packaging>jar</packaging>
   <version>1.2-SNAPSHOT</version>
   <name>SafeModel</name>
-  <description />
+  <description/>
   <licenses>
     <license>
       <name>The Apache Software License, Version 2.0</name>
@@ -48,6 +48,11 @@
       <artifactId>jmock-legacy</artifactId>
       <version>2.5.1</version>
     </dependency>
+    <dependency>
+      <groupId>com.googlecode.gentyref</groupId>
+      <artifactId>gentyref</artifactId>
+      <version>1.1.0</version>
+    </dependency>
   </dependencies>
   <build>
     <resources>
@@ -87,6 +92,8 @@
           <header>src/etc/license-header.txt</header>
           <excludes>
             <exclude>src/test/java/log4j.properties</exclude>
+            <exclude>README.md</exclude>
+            <exclude>.gitignore</exclude>
           </excludes>
           <useDefaultExcludes>true</useDefaultExcludes>
           <strictCheck>true</strictCheck>
