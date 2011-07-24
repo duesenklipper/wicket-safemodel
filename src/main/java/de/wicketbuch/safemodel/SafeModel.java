@@ -282,7 +282,10 @@ public final class SafeModel {
 		mode.set(Mode.PROPERTY);
 		final Class<U> classToImposterize;
 		{
-			if (target instanceof TypeAware) {
+			final U modelObject = target.getObject();
+			if (modelObject != null) {
+				classToImposterize = (Class<U>) modelObject.getClass();
+			} else if (target instanceof TypeAware) {
 				final TypeAware<U> ta = (TypeAware<U>) target;
 				if (ta.__type() != null) {
 					classToImposterize = ta.__type();

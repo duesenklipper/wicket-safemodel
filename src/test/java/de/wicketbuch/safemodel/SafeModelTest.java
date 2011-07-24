@@ -27,6 +27,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -84,7 +85,7 @@ public class SafeModelTest {
 		}
 	}
 
-	public static class Middle {
+	public static class Middle implements Serializable {
 		private String string;
 		private Bottom bot;
 
@@ -155,6 +156,29 @@ public class SafeModelTest {
 		final Middle mid = new Middle();
 		model.setObject(mid);
 		assertSame(mid, top.getMid());
+	}
+
+	@Test
+	public void nullRootModel() throws Exception {
+		final IModel<Middle> nullModel = new IModel<SafeModelTest.Middle>() {
+
+			private Middle mid;
+
+			public void detach() {
+				;
+			}
+
+			public Middle getObject() {
+				return mid;
+			}
+
+			public void setObject(final Middle object) {
+				mid = object;
+			}
+		};
+		final IModel<String> model = model(from(nullModel).getString());
+		nullModel.setObject(new Middle());
+		model.setObject("foo");
 	}
 
 	@Test
@@ -243,6 +267,8 @@ public class SafeModelTest {
 			calledLoadMid = true;
 			if (id == 42) {
 				return mid;
+			} else if (id == 43) {
+				return null;
 			} else {
 				throw new NotFoundException();
 			}
@@ -300,6 +326,14 @@ public class SafeModelTest {
 		final MidService service = new MidServiceImpl();
 		final IModel<Integer> model = model(from(
 				model(fromService(service).loadMid(42))).getBot().getValue());
+		assertEquals(Integer.valueOf(42), model.getObject());
+	}
+
+	@Test
+	public void nestedNullFromServiceModel() throws Exception {
+		final MidService service = new MidServiceImpl();
+		final IModel<Integer> model = model(from(
+				model(fromService(service).loadMid(43))).getBot().getValue());
 		assertEquals(Integer.valueOf(42), model.getObject());
 	}
 }
