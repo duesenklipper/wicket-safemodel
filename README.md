@@ -2,6 +2,13 @@ wicket-safemodel
 ================
 A typesafe and refactoring-safe way to build Wicket `PropertyModel`s.
 
+Current version: 1.2
+
+New in this release:
+
+*   Can now work with `IModel`s as targets. Reflection and proxying is done on
+    a 
+
 
 Why do I need this?
 -------------------
@@ -84,7 +91,7 @@ How do I use it?
         <dependency>
           <groupId>de.wicketbuch.safemodel</groupId>
           <artifactId>safemodel1.4</artifactId>
-          <version>1.1</version>
+          <version>1.2</version>
         </dependency>
         
     ...or on safemodel1.5 if you use Wicket 1.5-RC5.1:
@@ -92,7 +99,7 @@ How do I use it?
         <dependency>
           <groupId>de.wicketbuch.safemodel</groupId>
           <artifactId>safemodel1.5</artifactId>
-          <version>1.1</version>
+          <version>1.2</version>
         </dependency>
 
 *   Add a static import to your class to get the `from` and `model` methods into your scope:
