@@ -118,7 +118,7 @@ How do I use it?
     
 *   To get a `LoadableDetachableModel` to wrap backend calls, use `fromService` instead of `from`:
 
-        IModel<User> userModel = model(fromService(userEJB.loadUser(42)));
+        IModel<User> userModel = model(fromService(userEJB).loadUser(42));
         
     This will give you a `LoadableDetachableModel` that will load the user with the ID `42`.
     Note that in this case no arbitrary chaining of method calls is possible - just
