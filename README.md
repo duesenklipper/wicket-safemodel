@@ -2,7 +2,12 @@ wicket-safemodel
 ================
 A typesafe and refactoring-safe way to build Wicket `PropertyModel`s.
 
-**Current version: 1.3.1**
+**Current version: 1.3.2**
+
+New in 1.3.2:
+
+*   Fixed bug where fromService couldn't work with java.lang.reflect.Proxy based
+    instances either.
 
 New in 1.3.1:
 
@@ -99,7 +104,7 @@ How do I use it?
         <dependency>
           <groupId>de.wicketbuch.safemodel</groupId>
           <artifactId>safemodel1.4</artifactId>
-          <version>1.3.1</version>
+          <version>1.3.2</version>
         </dependency>
         
     ...or on safemodel1.5 if you use Wicket 1.5.x:
@@ -107,7 +112,7 @@ How do I use it?
         <dependency>
           <groupId>de.wicketbuch.safemodel</groupId>
           <artifactId>safemodel1.5</artifactId>
-          <version>1.3.1</version>
+          <version>1.3.2</version>
         </dependency>
 
 *   Add a static import to your class to get the `from` and `model` methods into your scope:
