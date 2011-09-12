@@ -133,7 +133,7 @@ public final class SafeModel {
         private final Class<T> type;
 
         private TypeAwareLDM(final Class<T> type) {
-            this.type = unproxy(type);
+            this.type = (Class<T>) unproxy(type)[0];
         }
 
         public Class<T> __type() {
@@ -142,19 +142,27 @@ public final class SafeModel {
     }
 
     @SuppressWarnings("unchecked")
-    private static <T> Class<T> unproxy(final Class<T> type) {
+    private static Class<?>[] unproxy(final Class<?> type) {
         if (type == null) {
             return null;
         }
-        Class<T> result = type;
-        while (isProxy(result)) {
-            result = (Class<T>) result.getSuperclass();
+        Class<?> result = type;
+        // unwrap any cglib proxy...
+        while (isCglibProxy(result)) {
+            result = result.getSuperclass();
         }
-        return result;
+        // ...unwrap any JDK proxy...
+        if (Proxy.isProxyClass(result)) {
+            // we proxy all these interfaces
+            return result.getInterfaces();
+        } else {
+            // no jdk proxy -> we just subclass whatever this is
+            return new Class<?>[] { result };
+        }
     }
 
-    public static <T> boolean isProxy(Class<T> result) {
-        return Proxy.isProxyClass(result) || result.getName().contains(CGLIB_NAME_MARKER);
+    public static <T> boolean isCglibProxy(Class<T> result) {
+        return result.getName().contains(CGLIB_NAME_MARKER);
     }
 
     @SuppressWarnings("unchecked")
@@ -210,7 +218,7 @@ public final class SafeModel {
 
         private TypeAwarePropModel(final Class<T> type, final Object target, final String expression) {
             super(target, expression);
-            this.type = unproxy(type);
+            this.type = (Class<T>) unproxy(type)[0];
         }
 
         public Class<T> __type() {
@@ -242,8 +250,7 @@ public final class SafeModel {
         root.set(target);
         currentTarget.set(target);
         mode.set(Mode.PROPERTY);
-        return (U) ClassImposteriser.INSTANCE.imposterise(PropertyFinderImpl.INSTANCE, unproxy(target.getClass()),
-                PropertyFinder.class);
+        return (U) imposterise(target.getClass(), PropertyFinderImpl.INSTANCE, PropertyFinder.class);
     }
 
     /**
@@ -274,8 +281,16 @@ public final class SafeModel {
                 classToImposterize = reflectModelObjectType(target);
             }
         }
-        return ClassImposteriser.INSTANCE.imposterise(PropertyFinderImpl.INSTANCE, unproxy(classToImposterize),
-                PropertyFinder.class);
+        return imposterise(classToImposterize, PropertyFinderImpl.INSTANCE, PropertyFinder.class);
+    }
+
+    public static <U> U imposterise(final Class<U> classToImposterize, Invokable handler, Class<?> handlerInterface) {
+        final Class<?>[] classOrInterfaces = unproxy(classToImposterize);
+        if (classOrInterfaces.length == 1) {
+            return (U) ClassImposteriser.INSTANCE.imposterise(handler, classOrInterfaces[0], handlerInterface);
+        } else {
+            return (U) ClassImposteriser.INSTANCE.imposterise(handler, handlerInterface, classOrInterfaces);
+        }
     }
 
     @SuppressWarnings("unchecked")
@@ -297,12 +312,15 @@ public final class SafeModel {
     }
 
     @SuppressWarnings("unchecked")
+    /**
+     * @param target may be a proxy. If it is a JDK proxy, it is assumed that the first interface
+     * @return
+     */
     public static <U> U fromService(final U target) {
         clear();
         root.set(target);
         mode.set(Mode.SERVICE);
-        return (U) ClassImposteriser.INSTANCE.imposterise(ServiceFinderImpl.INSTANCE, unproxy(target.getClass()),
-                ServiceFinder.class);
+        return (U) imposterise(target.getClass(), ServiceFinderImpl.INSTANCE, ServiceFinder.class);
     }
 
     public static interface ServiceFinder {
