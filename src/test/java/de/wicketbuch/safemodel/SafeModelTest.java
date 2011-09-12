@@ -20,6 +20,10 @@ package de.wicketbuch.safemodel;
 import static de.wicketbuch.safemodel.SafeModel.*;
 import static org.junit.Assert.*;
 
+import java.io.Serializable;
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -298,7 +302,7 @@ public class SafeModelTest {
     }
 
     @Test
-    public void proxiedService() throws Exception {
+    public void cgProxiedService() throws Exception {
         final Middle expected = new Middle();
         MidService mockedService = ClassImposteriser.INSTANCE.imposterise(new Invokable() {
 
@@ -306,6 +310,20 @@ public class SafeModelTest {
                 return expected;
             }
         }, MidServiceImpl.class);
+        IModel<Middle> model = model(fromService(mockedService).loadMid(42));
+        assertSame(expected, model.getObject());
+    }
+
+    @Test
+    public void javaProxiedService() throws Exception {
+        final Middle expected = new Middle();
+        MidService mockedService = (MidService) Proxy.newProxyInstance(MidService.class.getClassLoader(),
+                new Class<?>[] { Serializable.class, MidService.class }, new InvocationHandler() {
+
+                    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+                        return expected;
+                    }
+                });
         IModel<Middle> model = model(fromService(mockedService).loadMid(42));
         assertSame(expected, model.getObject());
     }
