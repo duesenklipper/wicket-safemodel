@@ -37,7 +37,6 @@ import org.jmock.api.Invokable;
 import org.jmock.lib.legacy.ClassImposteriser;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class SafeModelTest {
@@ -276,7 +275,6 @@ public class SafeModelTest {
     }
 
     @Test
-    @Ignore("does not work due to bug in PropertyModel in wicket1.4.17, waiting for fix")
     public void listModelAsTarget() throws Exception {
         final Top top = new Top();
         final Middle mid = new Middle();
