@@ -2,7 +2,12 @@ wicket-safemodel
 ================
 A typesafe and refactoring-safe way to build Wicket `PropertyModel`s.
 
-**Current version: 1.3.2**
+**Current version: 1.3.3**
+
+New in 1.3.3:
+
+*   Fixed bug where under some circumstances reflection on a model's object type didn't work.
+    Now the getObject().getClass() will be used if getObject() isn't null.
 
 New in 1.3.2:
 
@@ -104,7 +109,7 @@ How do I use it?
         <dependency>
           <groupId>de.wicketbuch.safemodel</groupId>
           <artifactId>safemodel1.4</artifactId>
-          <version>1.3.2</version>
+          <version>1.3.3</version>
         </dependency>
         
     ...or on safemodel1.5 if you use Wicket 1.5.x:
@@ -112,7 +117,7 @@ How do I use it?
         <dependency>
           <groupId>de.wicketbuch.safemodel</groupId>
           <artifactId>safemodel1.5</artifactId>
-          <version>1.3.2</version>
+          <version>1.3.3</version>
         </dependency>
 
 *   Add a static import to your class to get the `from` and `model` methods into your scope:
