@@ -295,19 +295,26 @@ public final class SafeModel {
 
     @SuppressWarnings("unchecked")
     private static <U> Class<U> reflectModelObjectType(final IModel<U> target) throws Error {
-        final Method getObject;
-        try {
-            getObject = target.getClass().getMethod("getObject");
-        } catch (final NoSuchMethodException e) {
-            throw new Error();
-        }
-        final Type type = GenericTypeReflector.getExactReturnType(getObject, target.getClass());
-        if (type instanceof Class) {
-            return (Class<U>) type;
-        } else if (type instanceof ParameterizedType) {
-            return (Class<U>) ((ParameterizedType) type).getRawType();
+        final U targetObject = target.getObject();
+        if (targetObject == null) {
+            final Method getObject;
+            try {
+                getObject = target.getClass().getMethod("getObject");
+            } catch (final NoSuchMethodException e) {
+                throw new Error();
+            }
+            final Type type = GenericTypeReflector.getExactReturnType(getObject, target.getClass());
+            final Class<U> reflectedType;
+            if (type instanceof Class) {
+                reflectedType = (Class<U>) type;
+            } else if (type instanceof ParameterizedType) {
+                reflectedType = (Class<U>) ((ParameterizedType) type).getRawType();
+            } else {
+                throw new UnsupportedOperationException("don't know how to find the type");
+            }
+            return reflectedType; // can't do anything else here
         } else {
-            throw new UnsupportedOperationException("don't know how to find the type");
+            return (Class<U>) targetObject.getClass();
         }
     }
 
@@ -356,7 +363,12 @@ public final class SafeModel {
             } else if (Object.class.equals(returnType)) {
                 return ClassImposteriser.INSTANCE.imposterise(BLOCKER, Object.class);
             } else {
-                return ClassImposteriser.INSTANCE.imposterise(BLOCKER, returnType);
+                try {
+                    return ClassImposteriser.INSTANCE.imposterise(BLOCKER, returnType);
+                } catch (ClassCastException e) {
+                    // some classloading problem in an appserver... maybe we can get by with just a null:
+                    return null;
+                }
             }
         }
     }

@@ -31,6 +31,7 @@ import java.util.Map;
 
 import org.apache.wicket.model.AbstractReadOnlyModel;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.Model;
 import org.apache.wicket.util.tester.WicketTester;
 import org.jmock.api.Invocation;
 import org.jmock.api.Invokable;
@@ -324,5 +325,26 @@ public class SafeModelTest {
                 });
         IModel<Middle> model = model(fromService(mockedService).loadMid(42));
         assertSame(expected, model.getObject());
+    }
+
+    public static class SomethingSerializable implements Serializable {
+        private String foo;
+
+        public String getFoo() {
+            return foo;
+        }
+
+        public void setFoo(String foo) {
+            this.foo = foo;
+        }
+    }
+
+    @Test
+    public void nonreflectableModel() throws Exception {
+        final SomethingSerializable something = new SomethingSerializable();
+        something.setFoo("bar");
+        Model<SomethingSerializable> rootModel = new Model<SomethingSerializable>(something);
+        IModel<String> propmodel = model(from(rootModel).getFoo());
+        assertEquals("bar", propmodel.getObject());
     }
 }
