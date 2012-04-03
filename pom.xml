@@ -15,7 +15,7 @@
     </license>
   </licenses>
   <properties>
-    <wicket.version>1.4.18</wicket.version>
+    <wicket.version>1.4.20</wicket.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <slf4j.version>1.5.8</slf4j.version>
   </properties>
