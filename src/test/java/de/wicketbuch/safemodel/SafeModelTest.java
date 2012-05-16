@@ -25,6 +25,7 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -58,6 +59,7 @@ public class SafeModelTest {
         private Middle mid;
         private List<Middle> mids = new ArrayList<Middle>();
         private Map<String, Bottom> bottomMap = new HashMap<String, Bottom>();
+        private List<Middle> immutableMids = Arrays.asList(new Middle());
 
         public Map<String, Bottom> getBottomMap() {
             return bottomMap;
@@ -81,6 +83,14 @@ public class SafeModelTest {
 
         public void setMids(final List<Middle> mids) {
             this.mids = mids;
+        }
+
+        public List<Middle> getImmutableMids() {
+            return immutableMids;
+        }
+
+        public void setImmutableMids(List<Middle> immutableMids) {
+            this.immutableMids = immutableMids;
         }
     }
 
@@ -190,6 +200,13 @@ public class SafeModelTest {
         model.setObject(bot);
         assertSame(bot, model.getObject());
         assertSame(bot, top.getMids().get(0).getBot());
+    }
+
+    @Test
+    public void unextendableListInPath() throws Exception {
+        final Top top = new Top();
+        final IModel<Middle> model = model(from(top).getImmutableMids().get(0));
+        assertNotNull(model.getObject());
     }
 
     @Test

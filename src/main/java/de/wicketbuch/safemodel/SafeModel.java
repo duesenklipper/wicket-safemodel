@@ -23,10 +23,14 @@ import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Proxy;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.IObjectClassAwareModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.PropertyModel;
+import org.apache.wicket.util.lang.Exceptions;
 import org.jmock.api.Invocation;
 import org.jmock.api.Invokable;
 import org.jmock.lib.legacy.ClassImposteriser;
@@ -99,11 +103,38 @@ public final class SafeModel {
             }
             if (Modifier.isFinal(returnType.getModifiers())) {
                 return callResult;
-            } else if (Object.class.equals(returnType)) {
-                return ClassImposteriser.INSTANCE.imposterise(INSTANCE, PropertyFinder.class);
             } else {
-                return ClassImposteriser.INSTANCE.imposterise(INSTANCE, returnType, PropertyFinder.class);
+                if (Object.class.equals(returnType)) {
+                    return ClassImposteriser.INSTANCE.imposterise(INSTANCE, PropertyFinder.class);
+                } else {
+                    try {
+                        return ClassImposteriser.INSTANCE.imposterise(INSTANCE, returnType, PropertyFinder.class);
+                    } catch (IllegalArgumentException e) {
+                        if (Exceptions.findCause(e, IllegalAccessError.class) != null) {
+                            return ClassImposteriser.INSTANCE.imposterise(INSTANCE, lookForInterfaces(returnType),
+                                    PropertyFinder.class);
+                        } else {
+                            throw e;
+                        }
+                    }
+                }
             }
+        }
+
+        @SuppressWarnings("unchecked")
+        private static final List<Class<?>> wellKnownMockableInterfaces = new ArrayList<Class<?>>() {
+            {
+                add(List.class);
+            }
+        };
+
+        private <T> Class<?> lookForInterfaces(Class<T> type) {
+            for (Class<?> c : wellKnownMockableInterfaces) {
+                if (c.isAssignableFrom(type)) {
+                    return c;
+                }
+            }
+            return type;
         }
     }
 
@@ -125,18 +156,15 @@ public final class SafeModel {
         }
     }
 
-    private static interface TypeAware<T> {
-        Class<T> __type();
-    }
-
-    private abstract static class TypeAwareLDM<T> extends LoadableDetachableModel<T> implements TypeAware<T> {
+    private abstract static class TypeAwareLDM<T> extends LoadableDetachableModel<T> implements
+            IObjectClassAwareModel<T> {
         private final Class<T> type;
 
         private TypeAwareLDM(final Class<T> type) {
             this.type = (Class<T>) unproxy(type)[0];
         }
 
-        public Class<T> __type() {
+        public Class<T> getObjectClass() {
             return type;
         }
     }
@@ -213,7 +241,7 @@ public final class SafeModel {
         return new TypeAwarePropModel<T>(modelObjectType, target, pathBuilder.toString());
     }
 
-    private static class TypeAwarePropModel<T> extends PropertyModel<T> implements TypeAware<T> {
+    private static class TypeAwarePropModel<T> extends PropertyModel<T> {
         private final Class<T> type;
 
         private TypeAwarePropModel(final Class<T> type, final Object target, final String expression) {
@@ -221,7 +249,8 @@ public final class SafeModel {
             this.type = (Class<T>) unproxy(type)[0];
         }
 
-        public Class<T> __type() {
+        @Override
+        public Class<T> getObjectClass() {
             return type;
         }
     }
@@ -270,10 +299,10 @@ public final class SafeModel {
         mode.set(Mode.PROPERTY);
         final Class<U> classToImposterize;
         {
-            if (target instanceof TypeAware) {
-                final TypeAware<U> ta = (TypeAware<U>) target;
-                if (ta.__type() != null) {
-                    classToImposterize = ta.__type();
+            if (target instanceof IObjectClassAwareModel) {
+                final IObjectClassAwareModel<U> ta = (IObjectClassAwareModel<U>) target;
+                if (ta.getObjectClass() != null) {
+                    classToImposterize = ta.getObjectClass();
                 } else {
                     classToImposterize = reflectModelObjectType(target);
                 }
