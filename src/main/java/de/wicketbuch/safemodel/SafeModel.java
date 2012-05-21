@@ -55,6 +55,7 @@ public final class SafeModel {
     private final static ThreadLocal<StringBuilder> path = new ThreadLocal<StringBuilder>();
     private final static ThreadLocal<Object> root = new ThreadLocal<Object>();
     private static final ThreadLocal<Object> currentTarget = new ThreadLocal<Object>();
+    private static final ThreadLocal<Object> currentType = new ThreadLocal<Object>();
     private static final ThreadLocal<Method> serviceMethod = new ThreadLocal<Method>();
     private static final ThreadLocal<Mode> mode = new ThreadLocal<Mode>();
     private static final ThreadLocal<Object[]> serviceArguments = new ThreadLocal<Object[]>();
@@ -98,6 +99,7 @@ public final class SafeModel {
                 throw new UnsupportedOperationException("SafeModel only supports JavaBean-style getters");
             }
             currentTarget.set(callResult);
+            currentType.set(returnType);
             if (returnType.isPrimitive()) {
                 return callResult;
             }
@@ -230,6 +232,7 @@ public final class SafeModel {
     private static <T> IModel<T> propertyModel(final T metaTarget) {
         final Object target = root.get();
         final StringBuilder pathBuilder = path.get();
+        final Class<T> modelObjectType = (Class<T>) (currentType.get());
         clear();
         if (target == null) {
             throw new IllegalArgumentException("target not set - did you forget to use from()?");
@@ -237,7 +240,6 @@ public final class SafeModel {
         if (pathBuilder == null) {
             throw new IllegalArgumentException("path not set - did you forget to use from()?");
         }
-        final Class<T> modelObjectType = (Class<T>) (metaTarget != null ? metaTarget.getClass() : null);
         return new TypeAwarePropModel<T>(modelObjectType, target, pathBuilder.toString());
     }
 
@@ -260,6 +262,7 @@ public final class SafeModel {
         root.remove();
         path.remove();
         currentTarget.remove();
+        currentType.remove();
         serviceMethod.remove();
         mode.remove();
     }

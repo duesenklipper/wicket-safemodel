@@ -60,6 +60,7 @@ public class SafeModelTest {
         private List<Middle> mids = new ArrayList<Middle>();
         private Map<String, Bottom> bottomMap = new HashMap<String, Bottom>();
         private List<Middle> immutableMids = Arrays.asList(new Middle());
+        private String string;
 
         public Map<String, Bottom> getBottomMap() {
             return bottomMap;
@@ -91,6 +92,14 @@ public class SafeModelTest {
 
         public void setImmutableMids(List<Middle> immutableMids) {
             this.immutableMids = immutableMids;
+        }
+
+        public String getString() {
+            return string;
+        }
+
+        public void setString(String string) {
+            this.string = string;
         }
     }
 
@@ -363,5 +372,14 @@ public class SafeModelTest {
         Model<SomethingSerializable> rootModel = new Model<SomethingSerializable>(something);
         IModel<String> propmodel = model(from(rootModel).getFoo());
         assertEquals("bar", propmodel.getObject());
+    }
+
+    @Test
+    public void nullLeafFinalClass() throws Exception {
+        final Top top = new Top();
+        IModel<String> model = model(from(top).getString());
+        assertNull(model.getObject());
+        model.setObject("foo");
+        assertEquals("foo", top.getString());
     }
 }
