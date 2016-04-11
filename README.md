@@ -2,9 +2,14 @@ wicket-safemodel
 ================
 A typesafe and refactoring-safe way to build Wicket `PropertyModel`s.
 
-**Note: This is no longer maintained. A faster implementation based partially on these ideas is available at [wicketstuff/LazyModel](https://github.com/wicketstuff/core/wiki/LazyModel). The API is nearly identical.**
+**Note: This is no longer maintained. A faster implementation based partially on these ideas is available at [wicketstuff/LazyModel](https://github.com/wicketstuff/core/wiki/LazyModel). The API is nearly identical. I am keeping this implementation here because LazyModel only works with Wicket 6 and up, whereas SafeModel works with Wicket 1.5.**
 
-**Current version: 1.3.3**
+**Current version: 1.3.4.1**
+
+New in 1.3.4.1:
+
+*   Fixed bug where model creation would fail when the last getter in the from-chain returned null.
+*   Note: This version has been available for years, I only forgot to update this README. SafeModel continues to be unmaintained, see the notice about LazyModel above.
 
 New in 1.3.3:
 
