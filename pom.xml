@@ -4,7 +4,7 @@
   <groupId>de.wicketbuch.safemodel</groupId>
   <artifactId>safemodel1.5</artifactId>
   <packaging>jar</packaging>
-  <version>1.3.5-SNAPSHOT</version>
+  <version>1.3.6-SNAPSHOT</version>
   <name>SafeModel</name>
   <description />
   <licenses>
@@ -15,7 +15,7 @@
     </license>
   </licenses>
   <properties>
-    <wicket.version>1.5.5</wicket.version>
+    <wicket.version>1.5.15</wicket.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <slf4j.version>1.5.8</slf4j.version>
   </properties>
