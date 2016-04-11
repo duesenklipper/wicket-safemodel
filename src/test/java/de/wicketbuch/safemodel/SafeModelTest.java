@@ -17,19 +17,6 @@
 
 package de.wicketbuch.safemodel;
 
-import static de.wicketbuch.safemodel.SafeModel.*;
-import static org.junit.Assert.*;
-
-import java.io.Serializable;
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.apache.wicket.model.AbstractReadOnlyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
@@ -40,6 +27,15 @@ import org.jmock.lib.legacy.ClassImposteriser;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.io.Serializable;
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
+import java.util.*;
+
+import static de.wicketbuch.safemodel.SafeModel.*;
+import static org.junit.Assert.*;
 
 public class SafeModelTest {
 
@@ -61,6 +57,8 @@ public class SafeModelTest {
         private Map<String, Bottom> bottomMap = new HashMap<String, Bottom>();
         private List<Middle> immutableMids = Arrays.asList(new Middle());
         private String string;
+
+        private boolean boolProp = false;
 
         public Map<String, Bottom> getBottomMap() {
             return bottomMap;
@@ -100,6 +98,14 @@ public class SafeModelTest {
 
         public void setString(String string) {
             this.string = string;
+        }
+
+        public boolean isBoolProp() {
+            return boolProp;
+        }
+
+        public void setBoolProp(boolean boolProp) {
+            this.boolProp = boolProp;
         }
     }
 
@@ -381,5 +387,14 @@ public class SafeModelTest {
         assertNull(model.getObject());
         model.setObject("foo");
         assertEquals("foo", top.getString());
+    }
+
+    @Test
+    public void booleanPropertyAccessor() throws Exception {
+        final Top top = new Top();
+        final IModel<Boolean> model = model(from(top).isBoolProp());
+        assertFalse(model.getObject());
+        model.setObject(true);
+        assertTrue(top.isBoolProp());
     }
 }

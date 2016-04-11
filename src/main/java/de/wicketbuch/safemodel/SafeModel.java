@@ -17,15 +17,7 @@
 
 package de.wicketbuch.safemodel;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Proxy;
-import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.List;
-
+import com.googlecode.gentyref.GenericTypeReflector;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.IObjectClassAwareModel;
 import org.apache.wicket.model.LoadableDetachableModel;
@@ -35,7 +27,9 @@ import org.jmock.api.Invocation;
 import org.jmock.api.Invokable;
 import org.jmock.lib.legacy.ClassImposteriser;
 
-import com.googlecode.gentyref.GenericTypeReflector;
+import java.lang.reflect.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public final class SafeModel {
     private static final String CGLIB_NAME_MARKER = "$$";
@@ -90,7 +84,14 @@ public final class SafeModel {
                 pathBuilder.append("]");
             } else if (methodName.startsWith("get")) {
                 final String propertyName = new StringBuilder().append(Character.toLowerCase(methodName.charAt(3)))
-                        .append(methodName.substring(4)).toString();
+                  .append(methodName.substring(4)).toString();
+                if (pathBuilder.length() > 0) {
+                    pathBuilder.append(".");
+                }
+                pathBuilder.append(propertyName);
+            } else if (methodName.startsWith("is")) {
+                final String propertyName = new StringBuilder().append(Character.toLowerCase(methodName.charAt(2)))
+                  .append(methodName.substring(3)).toString();
                 if (pathBuilder.length() > 0) {
                     pathBuilder.append(".");
                 }

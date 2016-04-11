@@ -97,6 +97,7 @@
             <exclude>src/test/java/log4j.properties</exclude>
             <exclude>README.md</exclude>
             <exclude>.gitignore</exclude>
+            <exclude>.idea/</exclude>
           </excludes>
           <useDefaultExcludes>true</useDefaultExcludes>
           <strictCheck>true</strictCheck>
@@ -152,6 +153,7 @@
     <connection>scm:git:git@github.com:duesenklipper/wicket-safemodel.git</connection>
     <url>scm:git:git@github.com:duesenklipper/wicket-safemodel.git</url>
     <developerConnection>scm:git:git@github.com:duesenklipper/wicket-safemodel.git</developerConnection>
+    <tag>HEAD</tag>
   </scm>
 </project>
 
