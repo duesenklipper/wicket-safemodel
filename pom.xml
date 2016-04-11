@@ -144,10 +144,6 @@
       <id>repo</id>
       <url>${repo.releases}</url>
     </repository>
-    <snapshotRepository>
-      <id>snapshot-repo</id>
-      <url>${repo.snapshots}</url>
-    </snapshotRepository>
   </distributionManagement>
   <scm>
     <connection>scm:git:git@github.com:duesenklipper/wicket-safemodel.git</connection>
